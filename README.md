@@ -22,7 +22,11 @@ UI: ConstraintLayout minden nézetnél, RecyclerView a listákhoz.
 Külső könyvtárak: ...
 
 Szerzők
+
 Takács Milán - KWKABN
+
 Tűri Krisztián Jenő - NLI24V
+
 Mohácsi Richárd Norbert - ZKGA6I
+
 Székely Attila - 
