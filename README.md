@@ -1,32 +1,43 @@
-KiFizeti? - Android beadandó
-Ez az alkalmazás baráti társaságok közös költéseinek kezelésére szolgál. Segítségével nyomon követhető, hogy egy esemény (buli, utazás) során ki mit fizetett, és a végén kinek mennyit kell adnia a többieknek.
+# KiFizeti? - Android beadandó
 
-Funkciók
-Események kezelése: Új csoportos események létrehozása és törlése.
+## Az alkalmazás célja
+A *KiFizeti?* egy Android alkalmazás, amely baráti társaságok közös költéseinek kezelésére szolgál. A readme.md állománya tartalmazza az alkalmazás célját és a felhasználó által elérhető funkciók leírását. Segítségével nyomon követhető, hogy egy esemény (például buli, közös utazás) során ki mit fizetett, és a végén kinek mennyit kell adnia a többieknek az egyenlő teherviselés érdekében.
 
-Kiadások rögzítése: Összeg, fizető fél és a résztvevők megadása.
+## Megvalósított funkciók és Feladatmegosztás
 
-Elszámolás: Az app kiszámolja az egyenlegeket (ki van pluszban/mínuszban).
+A projektet csoportos munkában valósítottuk meg, GitHub verziókezelő használatával. Minden csapattag egyaránt részt vett a felületek (Frontend) és az adatbázis/üzleti logika (Backend) fejlesztésében, folyamatos egyéni commitokkal.
 
-Keresés: Gyorskeresés a korábbi események között.
+**1. Események alapkezelése (Takács Milán - KWKABN)**
+* **Funkció:** Új csoportos események (pl. "Siófok 2024") létrehozása és listából való törlése.
+* **Frontend:** Új esemény hozzáadása űrlap és a törlést megerősítő párbeszédablakok elkészítése `ConstraintLayout` használatával.
+* **Backend:** `Event` Room entitás létrehozása, alapvető DAO műveletek (`INSERT`, `DELETE`) implementálása.
 
-Technikai részletek
-A projekt a követelményeknek megfelelően Java nyelven készült.
+**2. Főképernyő, Navigáció, Keresés és Rendezés (Tűri Krisztián Jenő - NLI24V)**
+* **Funkció:** Az alkalmazás alapvázának összeállítása, valamint az események közötti keresési és rendezési funkció.
+* **Frontend:** `Single Activity` beállítása, `Bottom Navigation Bar` beépítése a navigációhoz. Főképernyő felépítése: `RecyclerView` implementálása a listás nézethez, keresősáv és rendezési legördülő menü kialakítása.
+* **Backend:** Room adatbázis inicializálása, a lista betöltéséhez, a szöveges kereséshez és az ABC/Dátum szerinti rendezéshez szükséges `SELECT` és `ORDER BY` DAO lekérdezések.
 
-Architektúra: Single Activity + Fragments (Navigation Component).
+**3. Részletes nézet, Kiadások rögzítése és Módosítása (Mohácsi Richárd Norbert - ZKGA6I)**
+* **Funkció:** Részletes nézet egy kiválasztott eseményhez, ahol új kiadásokat lehet felvinni (összeg, fizető fél, résztvevők), illetve a meglévő objektumok módosítása (kiadás szerkesztése).
+* **Frontend:** Esemény részletes nézete (Fragment), és a Kiadás felvitele/szerkesztése képernyő dinamikus elemekkel. Felületek létrehozása `ConstraintLayout`-tal.
+* **Backend:** `Expense` Room entitás és a relációk kezelése. Kiadások mentése és szerkesztése az adatbázisban (`INSERT`, `UPDATE` DAO műveletek).
 
-Adattárolás: Room (lokális SQLite adatbázis).
+**4. Elszámolás és Egyenlegek (Székely Attila - I8RXQL)**
+* **Funkció:** Az app kiszámolja a tartozásokat és az egyenlegeket az adott eseményen belül (ki van pluszban/mínuszban).
+* **Frontend:** Elszámolás képernyő (Fragment), amely egy `RecyclerView` segítségével listázza, hogy kinek kivel felé van tartozása. Felületek kialakítása `ConstraintLayout` segítségével.
+* **Backend:** Az összes kiadás lekérdezése, az összegek szétosztása a résztvevők között, és a végső egyenlegek (tartozások) kiszámítása Java szinten.
 
-UI: ConstraintLayout minden nézetnél, RecyclerView a listákhoz.
+## Technikai részletek
 
-Külső könyvtárak: ...
+A projekt az oktatói követelményeknek megfelelően készült el:
+* **Nyelv és Környezet:** Java programozási nyelv, Android Studio.
+* **Architektúra:** Egyetlen Activity és több Fragment megközelítés, a felületek közötti váltást a Bottom Navigation biztosítja.
+* **UI Elemek:** Minden nézet `ConstraintLayout` segítségével készült. A listás megjelenítésekhez mindenhol `RecyclerView`-t használtunk. Tartalmaz listás és részletes nézeteket is.
+* **Adattárolás:** Készüléken lévő lokális adatbázis, az Architecture Components Room használatával.
+* **Verziókezelés:** Git (GitHub/Gitlab), folyamatos egyéni commitokkal, Reporter szerepkörben az oktató meghívásával. Csak a szerveren megtalálható commit-ok számítanak. Egy felbontásra és egy készülékre elegendő az alkalmazást optimalizálni.
 
-Szerzők
-
-Takács Milán - KWKABN
-
-Tűri Krisztián Jenő - NLI24V
-
-Mohácsi Richárd Norbert - ZKGA6I
-
-Székely Attila - 
+## Szerzők
+* Takács Milán (KWKABN)
+* Tűri Krisztián Jenő (NLI24V)
+* Mohácsi Richárd Norbert (ZKGA6I)
+* Székely Attila (I8RXQL)
