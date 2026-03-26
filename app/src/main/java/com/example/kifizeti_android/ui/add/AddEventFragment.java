@@ -68,5 +68,9 @@ public class AddEventFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.fragment_container, new com.example.kifizeti_android.ui.events.EventsFragment())
                 .commit();
+
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
+                requireActivity().findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_events);
     }
 }
