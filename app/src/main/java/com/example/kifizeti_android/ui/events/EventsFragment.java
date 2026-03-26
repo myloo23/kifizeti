@@ -12,6 +12,7 @@ import androidx.room.Room;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.adapter.EventAdapter;
@@ -23,6 +24,7 @@ import java.util.List;
 public class EventsFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private TextView tvEmpty;
     private AppDatabase db;
 
     public EventsFragment() {}
@@ -37,15 +39,28 @@ public class EventsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         recyclerView = view.findViewById(R.id.recyclerEvents);
+        tvEmpty = view.findViewById(R.id.tvEmpty);
 
         db = Room.databaseBuilder(requireContext(),
                         AppDatabase.class, "kifizeti_db")
                 .allowMainThreadQueries()
                 .build();
 
+        loadEvents();
+    }
+
+    private void loadEvents() {
         List<Event> events = db.eventDao().getAllEvents();
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.setAdapter(new EventAdapter(requireContext(), events));
+        if (events.isEmpty()) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            tvEmpty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+
+            recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+            recyclerView.setAdapter(new EventAdapter(requireContext(), events));
+        }
     }
 }

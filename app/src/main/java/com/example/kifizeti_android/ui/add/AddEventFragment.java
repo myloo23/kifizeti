@@ -82,7 +82,14 @@ public class AddEventFragment extends Fragment {
         String description = etEventDescription.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
-            etEventName.setError("Az esemény neve kötelező");
+            etEventName.setError("Kötelező mező");
+            etEventName.requestFocus();
+            return;
+        }
+
+        if (name.length() < 3) {
+            etEventName.setError("Legalább 3 karakter");
+            etEventName.requestFocus();
             return;
         }
 
