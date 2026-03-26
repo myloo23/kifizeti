@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.kifizeti_android.data.entity.Event;
 
@@ -20,4 +21,7 @@ public interface EventDao {
 
     @Query("SELECT * FROM events ORDER BY createdAt DESC")
     List<Event> getAllEvents();
+
+    @Update
+    void update(Event event);
 }

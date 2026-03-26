@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +15,7 @@ import androidx.room.Room;
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
+import com.example.kifizeti_android.ui.add.AddEventFragment;
 
 import java.util.List;
 
@@ -37,12 +37,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
-        Button btnDelete;
+        Button btnDelete, btnEdit;
 
         public ViewHolder(View view) {
             super(view);
             tvName = view.findViewById(R.id.tvEventName);
             btnDelete = view.findViewById(R.id.btnDelete);
+            btnEdit = view.findViewById(R.id.btnEdit);
         }
     }
 
@@ -58,6 +59,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull EventAdapter.ViewHolder holder, int position) {
         Event event = events.get(position);
         holder.tvName.setText(event.getName());
+
+        holder.btnEdit.setOnClickListener(v -> {
+            ((androidx.appcompat.app.AppCompatActivity) context)
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container,
+                            AddEventFragment.newInstance(
+                                    event.getId(),
+                                    event.getName(),
+                                    event.getDescription()
+                            ))
+                    .commit();
+        });
 
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)

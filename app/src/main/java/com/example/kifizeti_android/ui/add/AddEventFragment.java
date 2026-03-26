@@ -17,6 +17,8 @@ import androidx.room.Room;
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
+import com.example.kifizeti_android.ui.events.EventsFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class AddEventFragment extends Fragment {
 
@@ -24,7 +26,20 @@ public class AddEventFragment extends Fragment {
     private Button btnSaveEvent;
     private AppDatabase db;
 
+    private boolean isEditMode = false;
+    private int eventId = -1;
+
     public AddEventFragment() {
+    }
+
+    public static AddEventFragment newInstance(int id, String name, String description) {
+        AddEventFragment fragment = new AddEventFragment();
+        Bundle args = new Bundle();
+        args.putInt("eventId", id);
+        args.putString("eventName", name);
+        args.putString("eventDescription", description);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -47,6 +62,18 @@ public class AddEventFragment extends Fragment {
                 .allowMainThreadQueries()
                 .build();
 
+        if (getArguments() != null) {
+            isEditMode = true;
+            eventId = getArguments().getInt("eventId", -1);
+
+            String name = getArguments().getString("eventName", "");
+            String description = getArguments().getString("eventDescription", "");
+
+            etEventName.setText(name);
+            etEventDescription.setText(description);
+            btnSaveEvent.setText("Módosítás mentése");
+        }
+
         btnSaveEvent.setOnClickListener(v -> saveEvent());
     }
 
@@ -59,17 +86,23 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
-        Event event = new Event(name, description, System.currentTimeMillis());
-        db.eventDao().insert(event);
-
-        Toast.makeText(requireContext(), "Esemény mentve", Toast.LENGTH_SHORT).show();
+        if (isEditMode) {
+            Event event = new Event(name, description, System.currentTimeMillis());
+            event.setId(eventId);
+            db.eventDao().update(event);
+            Toast.makeText(requireContext(), "Esemény módosítva", Toast.LENGTH_SHORT).show();
+        } else {
+            Event event = new Event(name, description, System.currentTimeMillis());
+            db.eventDao().insert(event);
+            Toast.makeText(requireContext(), "Esemény mentve", Toast.LENGTH_SHORT).show();
+        }
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new com.example.kifizeti_android.ui.events.EventsFragment())
+                .replace(R.id.fragment_container, new EventsFragment())
                 .commit();
 
-        com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
+        BottomNavigationView bottomNav =
                 requireActivity().findViewById(R.id.bottom_nav);
         bottomNav.setSelectedItemId(R.id.nav_events);
     }

@@ -38,4 +38,12 @@ public class Event {
     public long getCreatedAt() {
         return createdAt;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
