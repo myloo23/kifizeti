@@ -64,7 +64,9 @@ public class AddEventFragment extends Fragment {
 
         Toast.makeText(requireContext(), "Esemény mentve", Toast.LENGTH_SHORT).show();
 
-        etEventName.setText("");
-        etEventDescription.setText("");
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new com.example.kifizeti_android.ui.events.EventsFragment())
+                .commit();
     }
 }
