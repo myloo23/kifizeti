@@ -24,4 +24,13 @@ public interface EventDao {
 
     @Update
     void update(Event event);
+
+    @Query("SELECT * FROM events WHERE name LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    List<Event> searchEvents(String query);
+
+    @Query("SELECT * FROM events ORDER BY name ASC")
+    List<Event> getAllEventsByName();
+
+    @Query("SELECT * FROM events ORDER BY createdAt DESC")
+    List<Event> getAllEventsByDate();
 }
