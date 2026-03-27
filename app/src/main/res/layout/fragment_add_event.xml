@@ -9,12 +9,13 @@
         android:id="@+id/etEventName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Esemény neve"
+        android:hint="Esemény neve (pl. Siófok 2024)"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
+
         />
 
     <EditText
@@ -38,8 +39,12 @@
         android:layout_height="wrap_content"
         android:text="Mentés"
         android:layout_marginTop="16dp"
+        android:enabled="false"
         app:layout_constraintTop_toBottomOf="@id/etEventDescription"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -79,7 +79,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                             Event toDelete = events.get(adapterPosition);
                             db.eventDao().delete(toDelete);
                             events.remove(adapterPosition);
-                            notifyItemRemoved(adapterPosition);
+                            notifyDataSetChanged();
                         }
                     })
                     .setNegativeButton("Mégse", null)

@@ -1,7 +1,9 @@
 package com.example.kifizeti_android.ui.add;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,9 +74,37 @@ public class AddEventFragment extends Fragment {
             etEventName.setText(name);
             etEventDescription.setText(description);
             btnSaveEvent.setText("Módosítás mentése");
+        } else {
+            btnSaveEvent.setText("Mentés");
         }
 
+        etEventName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateSaveButtonState();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateSaveButtonState();
+            }
+        });
+
         btnSaveEvent.setOnClickListener(v -> saveEvent());
+
+        updateSaveButtonState();
+    }
+
+    private void updateSaveButtonState() {
+        String name = etEventName.getText().toString().trim();
+        boolean isValid = name.length() >= 3;
+
+        btnSaveEvent.setEnabled(isValid);
+        btnSaveEvent.setAlpha(isValid ? 1.0f : 0.5f);
     }
 
     private void saveEvent() {
@@ -87,6 +117,12 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
+        if (name.length() < 3) {
+            etEventName.setError("Legalább 3 karakter");
+            etEventName.requestFocus();
+            return;
+        }
+
         if (!isEditMode) {
             Event existingEvent = db.eventDao().getEventByExactName(name);
             if (existingEvent != null) {
@@ -94,11 +130,6 @@ public class AddEventFragment extends Fragment {
                 etEventName.requestFocus();
                 return;
             }
-        }
-        if (name.length() < 3) {
-            etEventName.setError("Legalább 3 karakter");
-            etEventName.requestFocus();
-            return;
         }
 
         if (isEditMode) {
@@ -117,8 +148,7 @@ public class AddEventFragment extends Fragment {
                 .replace(R.id.fragment_container, new EventsFragment())
                 .commit();
 
-        BottomNavigationView bottomNav =
-                requireActivity().findViewById(R.id.bottom_nav);
+        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
         bottomNav.setSelectedItemId(R.id.nav_events);
     }
 }
