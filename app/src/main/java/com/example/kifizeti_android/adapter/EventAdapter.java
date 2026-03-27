@@ -9,12 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
+import com.example.kifizeti_android.ui.add.AddEventFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -36,7 +38,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvDescription, tvDate;
-        Button btnDelete;
+        Button btnDelete, btnEdit;
 
         public ViewHolder(View view) {
             super(view);
@@ -44,6 +46,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             tvDescription = view.findViewById(R.id.tvEventDescription);
             tvDate = view.findViewById(R.id.tvEventDate);
             btnDelete = view.findViewById(R.id.btnDelete);
+            btnEdit = view.findViewById(R.id.btnEdit);
         }
     }
 
@@ -68,6 +71,22 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         String formattedDate = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
                 .format(event.getCreatedAt());
         holder.tvDate.setText("Létrehozva: " + formattedDate);
+
+        holder.btnEdit.setOnClickListener(v -> {
+            ((AppCompatActivity) context)
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(
+                            R.id.fragment_container,
+                            AddEventFragment.newInstance(
+                                    event.getId(),
+                                    event.getName(),
+                                    event.getDescription(),
+                                    event.getCreatedAt()
+                            )
+                    )
+                    .commit();
+        });
 
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)

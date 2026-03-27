@@ -30,16 +30,18 @@ public class AddEventFragment extends Fragment {
 
     private boolean isEditMode = false;
     private int eventId = -1;
+    private long originalCreatedAt = 0;
 
     public AddEventFragment() {
     }
 
-    public static AddEventFragment newInstance(int id, String name, String description) {
+    public static AddEventFragment newInstance(int id, String name, String description, long createdAt) {
         AddEventFragment fragment = new AddEventFragment();
         Bundle args = new Bundle();
         args.putInt("eventId", id);
         args.putString("eventName", name);
         args.putString("eventDescription", description);
+        args.putLong("eventCreatedAt", createdAt);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,6 +69,7 @@ public class AddEventFragment extends Fragment {
         if (getArguments() != null) {
             isEditMode = true;
             eventId = getArguments().getInt("eventId", -1);
+            originalCreatedAt = getArguments().getLong("eventCreatedAt", System.currentTimeMillis());
 
             String name = getArguments().getString("eventName", "");
             String description = getArguments().getString("eventDescription", "");
@@ -75,7 +78,7 @@ public class AddEventFragment extends Fragment {
             etEventDescription.setText(description);
             btnSaveEvent.setText("Módosítás mentése");
         } else {
-            btnSaveEvent.setText("Mentés");
+            btnSaveEvent.setText("Létrehozás");
         }
 
         etEventName.addTextChangedListener(new TextWatcher() {
@@ -123,17 +126,15 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
-        if (!isEditMode) {
-            Event existingEvent = db.eventDao().getEventByExactName(name);
-            if (existingEvent != null) {
-                etEventName.setError("Ilyen nevű esemény már létezik");
-                etEventName.requestFocus();
-                return;
-            }
+        Event existingEvent = db.eventDao().getEventByExactName(name);
+        if (existingEvent != null && existingEvent.getId() != eventId) {
+            etEventName.setError("Ilyen nevű esemény már létezik");
+            etEventName.requestFocus();
+            return;
         }
 
         if (isEditMode) {
-            Event event = new Event(name, description, System.currentTimeMillis());
+            Event event = new Event(name, description, originalCreatedAt);
             event.setId(eventId);
             db.eventDao().update(event);
             Toast.makeText(requireContext(), "Esemény módosítva", Toast.LENGTH_SHORT).show();
