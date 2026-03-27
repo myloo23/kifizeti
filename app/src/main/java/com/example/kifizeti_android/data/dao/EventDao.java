@@ -33,4 +33,7 @@ public interface EventDao {
 
     @Query("SELECT * FROM events ORDER BY createdAt DESC")
     List<Event> getAllEventsByDate();
+
+    @Query("SELECT * FROM events WHERE name = :name LIMIT 1")
+    Event getEventByExactName(String name);
 }

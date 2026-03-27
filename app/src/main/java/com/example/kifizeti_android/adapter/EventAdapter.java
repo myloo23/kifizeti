@@ -15,74 +15,74 @@ import androidx.room.Room;
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
-import com.example.kifizeti_android.ui.add.AddEventFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
 
-    private List<Event> events;
-    private Context context;
-    private AppDatabase db;
+    private final List<Event> events;
+    private final Context context;
+    private final AppDatabase db;
 
     public EventAdapter(Context context, List<Event> events) {
         this.context = context;
         this.events = events;
-
-        db = Room.databaseBuilder(context,
-                        AppDatabase.class, "kifizeti_db")
+        this.db = Room.databaseBuilder(context, AppDatabase.class, "kifizeti_db")
                 .allowMainThreadQueries()
                 .build();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName;
-        Button btnDelete, btnEdit;
+        TextView tvName, tvDescription, tvDate;
+        Button btnDelete;
 
         public ViewHolder(View view) {
             super(view);
             tvName = view.findViewById(R.id.tvEventName);
+            tvDescription = view.findViewById(R.id.tvEventDescription);
+            tvDate = view.findViewById(R.id.tvEventDate);
             btnDelete = view.findViewById(R.id.btnDelete);
-            btnEdit = view.findViewById(R.id.btnEdit);
         }
     }
 
     @NonNull
     @Override
-    public EventAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
-                .inflate(R.layout.item_event, parent, false);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_event, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EventAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = events.get(position);
-        holder.tvName.setText(event.getName());
 
-        holder.btnEdit.setOnClickListener(v -> {
-            ((androidx.appcompat.app.AppCompatActivity) context)
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container,
-                            AddEventFragment.newInstance(
-                                    event.getId(),
-                                    event.getName(),
-                                    event.getDescription()
-                            ))
-                    .commit();
-        });
+        holder.tvName.setText(event.getName());
+        holder.tvDescription.setText(
+                event.getDescription() == null || event.getDescription().trim().isEmpty()
+                        ? "Nincs leírás"
+                        : event.getDescription()
+        );
+
+        String formattedDate = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
+                .format(event.getCreatedAt());
+        holder.tvDate.setText("Létrehozva: " + formattedDate);
 
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
-                    .setTitle("Törlés")
-                    .setMessage("Biztos törlöd?")
+                    .setTitle("Esemény törlése")
+                    .setMessage("Biztosan törölni szeretnéd ezt az eseményt?")
                     .setPositiveButton("Igen", (dialog, which) -> {
-                        db.eventDao().delete(event);
-                        events.remove(position);
-                        notifyDataSetChanged();
+                        int adapterPosition = holder.getAdapterPosition();
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            Event toDelete = events.get(adapterPosition);
+                            db.eventDao().delete(toDelete);
+                            events.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                        }
                     })
-                    .setNegativeButton("Nem", null)
+                    .setNegativeButton("Mégse", null)
                     .show();
         });
     }

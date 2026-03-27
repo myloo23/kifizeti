@@ -10,27 +10,44 @@
         android:id="@+id/tvEventName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Event name"
+        android:text="Esemény neve"
         android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnEdit"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Szerk."
-        app:layout_constraintEnd_toStartOf="@id/btnDelete"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnDelete"
+        android:layout_marginEnd="8dp"/>
+
+    <TextView
+        android:id="@+id/tvEventDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Leírás"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvEventName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnDelete"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"/>
+
+    <TextView
+        android:id="@+id/tvEventDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Létrehozva: 2026.03.26"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/tvEventDescription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnDelete"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"/>
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Törlés"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

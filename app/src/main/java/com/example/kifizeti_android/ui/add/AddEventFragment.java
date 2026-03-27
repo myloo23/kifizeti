@@ -87,6 +87,14 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
+        if (!isEditMode) {
+            Event existingEvent = db.eventDao().getEventByExactName(name);
+            if (existingEvent != null) {
+                etEventName.setError("Ilyen nevű esemény már létezik");
+                etEventName.requestFocus();
+                return;
+            }
+        }
         if (name.length() < 3) {
             etEventName.setError("Legalább 3 karakter");
             etEventName.requestFocus();
