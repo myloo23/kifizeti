@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="Események" />
     <item
         android:id="@+id/nav_add"
-        android:icon="@android:drawable/ic_input_add"
-        android:title="Hozzáadás" />
-
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="Új" />
     <item
-        android:id="@+id/nav_events"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Események" />
-
+        android:id="@+id/nav_summary"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Elszámolás" />
 </menu>
