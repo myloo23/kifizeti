@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
@@ -45,9 +44,7 @@ public class AddExpenseFragment extends Fragment {
             eventId = getArguments().getInt(ARG_EVENT_ID);
             expenseId = getArguments().getInt(ARG_EXPENSE_ID);
         }
-        db = Room.databaseBuilder(requireContext(), AppDatabase.class, "kifizeti_db")
-                .allowMainThreadQueries()
-                .build();
+        db = AppDatabase.getDatabase(requireContext());
     }
 
     @Nullable

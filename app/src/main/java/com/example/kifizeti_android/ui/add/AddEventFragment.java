@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
@@ -61,10 +60,7 @@ public class AddEventFragment extends Fragment {
         etEventDescription = view.findViewById(R.id.etEventDescription);
         btnSaveEvent = view.findViewById(R.id.btnSaveEvent);
 
-        db = Room.databaseBuilder(requireContext(),
-                        AppDatabase.class, "kifizeti_db")
-                .allowMainThreadQueries()
-                .build();
+        db = AppDatabase.getDatabase(requireContext());
 
         if (getArguments() != null) {
             isEditMode = true;

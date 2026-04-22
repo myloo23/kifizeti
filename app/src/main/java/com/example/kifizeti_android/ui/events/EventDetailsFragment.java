@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.adapter.ExpenseAdapter;
@@ -53,9 +52,7 @@ public class EventDetailsFragment extends Fragment {
             eventName = getArguments().getString(ARG_EVENT_NAME);
             eventDesc = getArguments().getString(ARG_EVENT_DESC);
         }
-        db = Room.databaseBuilder(requireContext(), AppDatabase.class, "kifizeti_db")
-                .allowMainThreadQueries()
-                .build();
+        db = AppDatabase.getDatabase(requireContext());
     }
 
     @Nullable

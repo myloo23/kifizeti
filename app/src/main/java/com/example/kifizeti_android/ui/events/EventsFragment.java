@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.adapter.EventAdapter;
@@ -49,10 +48,7 @@ public class EventsFragment extends Fragment {
         etSearch = view.findViewById(R.id.etSearch);
         spinnerSort = view.findViewById(R.id.spinnerSort);
 
-        db = Room.databaseBuilder(requireContext(),
-                        AppDatabase.class, "kifizeti_db")
-                .allowMainThreadQueries()
-                .build();
+        db = AppDatabase.getDatabase(requireContext());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 

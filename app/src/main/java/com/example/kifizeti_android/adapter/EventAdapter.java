@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
@@ -31,9 +30,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     public EventAdapter(Context context, List<Event> events) {
         this.context = context;
         this.events = events;
-        this.db = Room.databaseBuilder(context, AppDatabase.class, "kifizeti_db")
-                .allowMainThreadQueries()
-                .build();
+        this.db = AppDatabase.getDatabase(context);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

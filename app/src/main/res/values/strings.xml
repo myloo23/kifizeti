@@ -1,5 +1,20 @@
 <resources>
     <string name="app_name">kifizeti_android</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Auth strings -->
+    <string name="login_title">Bejelentkezés</string>
+    <string name="register_title">Regisztráció</string>
+    <string name="username_hint">Felhasználónév</string>
+    <string name="password_hint">Jelszó</string>
+    <string name="email_hint">Email</string>
+    <string name="login_button">Bejelentkezés</string>
+    <string name="register_button">Regisztráció</string>
+    <string name="go_to_register">Nincs még fiókod? Regisztrálj!</string>
+    <string name="go_to_login">Van már fiókod? Jelentkezz be!</string>
+    <string name="logout_title">Kijelentkezés</string>
+    <string name="fill_all_fields">Kérjük, töltsön ki minden mezőt!</string>
+    <string name="invalid_credentials">Hibás felhasználónév vagy jelszó!</string>
+    <string name="username_taken">Ez a felhasználónév már foglalt!</string>
+    <string name="registration_success">Sikeres regisztráció!</string>
 </resources>
