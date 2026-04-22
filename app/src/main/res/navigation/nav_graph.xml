@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.kifizeti_android.HomeFragment"
+        android:label="Események"
+        tools:layout="@layout/fragment_events" />
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.kifizeti_android.ui.auth.LoginFragment"
+        android:label="Bejelentkezés" />
+
+    <fragment
+        android:id="@+id/nav_add"
+        android:name="com.example.kifizeti_android.ui.add.AddEventFragment"
+        android:label="Új esemény" />
+
+    <fragment
+        android:id="@+id/nav_summary"
+        android:name="com.example.kifizeti_android.ui.elszamolas.ElszamolasFragment"
+        android:label="Elszámolás" />
+
+</navigation>
