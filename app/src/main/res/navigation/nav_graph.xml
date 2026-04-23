@@ -23,4 +23,8 @@
         android:name="com.example.kifizeti_android.ui.elszamolas.ElszamolasFragment"
         android:label="Elszámolás" />
 
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.kifizeti_android.ui.auth.RegisterFragment"
+        android:label="Regisztráció" />
 </navigation>
