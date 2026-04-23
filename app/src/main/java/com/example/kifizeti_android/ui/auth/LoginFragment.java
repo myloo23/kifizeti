@@ -12,12 +12,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation; // EZT AZ ÚJ IMPORTOT HOZZÁADTUK!
+import androidx.navigation.Navigation;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.UserSessionManager;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.User;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoginFragment extends Fragment {
 
@@ -26,6 +29,7 @@ public class LoginFragment extends Fragment {
     private TextView tvGoToRegister;
     private UserSessionManager sessionManager;
     private AppDatabase db;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
@@ -49,15 +53,19 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            User user = db.userDao().login(username, password);
-            if (user != null) {
-                sessionManager.createLoginSession(username);
-
-                Navigation.findNavController(v).navigate(R.id.nav_events);
-
-            } else {
-                Toast.makeText(getContext(), "Hibás felhasználónév vagy jelszó!", Toast.LENGTH_SHORT).show();
-            }
+            executorService.execute(() -> {
+                User user = db.userDao().login(username, password);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (user != null) {
+                            sessionManager.createLoginSession(username);
+                            Navigation.findNavController(view).navigate(R.id.nav_events);
+                        } else {
+                            Toast.makeText(getContext(), "Hibás felhasználónév vagy jelszó!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         });
 
         tvGoToRegister.setOnClickListener(v -> {
@@ -65,5 +73,11 @@ public class LoginFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        executorService.shutdown();
     }
 }

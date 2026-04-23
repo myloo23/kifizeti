@@ -12,10 +12,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.User;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RegisterFragment extends Fragment {
 
@@ -23,6 +27,7 @@ public class RegisterFragment extends Fragment {
     private Button btnRegister;
     private TextView tvGoToLogin;
     private AppDatabase db;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
@@ -47,22 +52,38 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
-            if (db.userDao().getUserByUsername(username) != null) {
-                Toast.makeText(getContext(), "Ez a felhasználónév már foglalt!", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            executorService.execute(() -> {
+                if (db.userDao().getUserByUsername(username) != null) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> 
+                            Toast.makeText(getContext(), "Ez a felhasználónév már foglalt!", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+                    return;
+                }
 
-            User newUser = new User(username, password, email);
-            db.userDao().registerUser(newUser);
-            Toast.makeText(getContext(), "Sikeres regisztráció!", Toast.LENGTH_SHORT).show();
-            
-            requireActivity().getSupportFragmentManager().popBackStack();
+                User newUser = new User(username, password, email);
+                db.userDao().registerUser(newUser);
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Sikeres regisztráció!", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(view).navigateUp();
+                    });
+                }
+            });
         });
 
         tvGoToLogin.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
+            Navigation.findNavController(v).navigateUp();
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        executorService.shutdown();
     }
 }

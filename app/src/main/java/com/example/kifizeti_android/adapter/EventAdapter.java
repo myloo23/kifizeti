@@ -2,6 +2,7 @@ package com.example.kifizeti_android.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,22 +11,25 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
-import com.example.kifizeti_android.ui.add.AddEventFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
 
     private final List<Event> events;
     private final Context context;
     private final AppDatabase db;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public EventAdapter(Context context, List<Event> events) {
         this.context = context;
@@ -70,19 +74,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         holder.tvDate.setText("Létrehozva: " + formattedDate);
 
         holder.btnEdit.setOnClickListener(v -> {
-            ((AppCompatActivity) context)
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(
-                            R.id.fragment_container,
-                            AddEventFragment.newInstance(
-                                    event.getId(),
-                                    event.getName(),
-                                    event.getDescription(),
-                                    event.getCreatedAt()
-                            )
-                    )
-                    .commit();
+            Bundle bundle = new Bundle();
+            bundle.putInt("eventId", event.getId());
+            bundle.putString("eventName", event.getName());
+            bundle.putString("eventDescription", event.getDescription());
+            bundle.putLong("eventCreatedAt", event.getCreatedAt());
+
+            Navigation.findNavController(v).navigate(R.id.nav_add, bundle);
         });
 
         holder.btnDelete.setOnClickListener(v -> {
@@ -93,9 +91,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                         int adapterPosition = holder.getAdapterPosition();
                         if (adapterPosition != RecyclerView.NO_POSITION) {
                             Event toDelete = events.get(adapterPosition);
-                            db.eventDao().delete(toDelete);
-                            events.remove(adapterPosition);
-                            notifyDataSetChanged();
+                            executorService.execute(() -> {
+                                db.eventDao().delete(toDelete);
+                                if (context instanceof AppCompatActivity) {
+                                    ((AppCompatActivity) context).runOnUiThread(() -> {
+                                        events.remove(adapterPosition);
+                                        notifyItemRemoved(adapterPosition);
+                                    });
+                                }
+                            });
                         }
                     })
                     .setNegativeButton("Mégse", null)
