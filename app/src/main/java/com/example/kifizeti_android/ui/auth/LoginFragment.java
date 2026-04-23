@@ -12,8 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation; // EZT AZ ÚJ IMPORTOT HOZZÁADTUK!
 
-import com.example.kifizeti_android.MainActivity;
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.UserSessionManager;
 import com.example.kifizeti_android.data.db.AppDatabase;
@@ -52,18 +52,16 @@ public class LoginFragment extends Fragment {
             User user = db.userDao().login(username, password);
             if (user != null) {
                 sessionManager.createLoginSession(username);
-                ((MainActivity) requireActivity()).checkLoginStatus();
+
+                Navigation.findNavController(v).navigate(R.id.nav_events);
+
             } else {
                 Toast.makeText(getContext(), "Hibás felhasználónév vagy jelszó!", Toast.LENGTH_SHORT).show();
             }
         });
 
         tvGoToRegister.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new RegisterFragment())
-                    .addToBackStack(null)
-                    .commit();
+             Navigation.findNavController(v).navigate(R.id.registerFragment);
         });
 
         return view;
