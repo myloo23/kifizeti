@@ -13,7 +13,10 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.example.kifizeti_android.R;
+import com.example.kifizeti_android.data.UserSessionManager;
 import com.google.android.material.materialswitch.MaterialSwitch;
+
+import android.widget.TextView;
 
 public class SettingsFragment extends Fragment {
 
@@ -28,6 +31,10 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        UserSessionManager sessionManager = new UserSessionManager(requireContext());
+        TextView tvUsername = view.findViewById(R.id.tvUsername);
+        tvUsername.setText(sessionManager.getUsername() != null ? sessionManager.getUsername() : "Vendég");
 
         MaterialSwitch switchDarkMode = view.findViewById(R.id.switchDarkMode);
         SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
