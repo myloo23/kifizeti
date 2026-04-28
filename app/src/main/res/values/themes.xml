@@ -1,9 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Kifizeti_android" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorError">@color/error</item>
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- Modern gomb stílus -->
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Kifizeti.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Kifizeti.Medium</item>
     </style>
 
     <style name="Theme.Kifizeti_android" parent="Base.Theme.Kifizeti_android" />
+
+    <style name="ShapeAppearance.Kifizeti.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Kifizeti.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
 </resources>

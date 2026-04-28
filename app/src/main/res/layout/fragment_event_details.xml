@@ -45,22 +45,22 @@
 
         <Button
             android:id="@+id/btnBack"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:text="Vissza"
-            android:backgroundTint="#757575"
-            android:textColor="#FFFFFF" />
+            app:cornerRadius="12dp" />
 
         <Button
             android:id="@+id/btnAddExpense"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="2"
             android:text="Új kiadás"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF" />
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
 

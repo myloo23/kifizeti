@@ -1,9 +1,12 @@
 package com.example.kifizeti_android;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applyTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             navController = navHostFragment.getNavController();
 
             appBarConfiguration = new AppBarConfiguration.Builder(
-                    R.id.nav_events, R.id.nav_add, R.id.nav_summary)
+                    R.id.nav_events, R.id.nav_add, R.id.nav_summary, R.id.nav_settings)
                     .build();
 
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -81,6 +85,16 @@ public class MainActivity extends AppCompatActivity {
             if (navController != null) {
                 navController.navigate(R.id.loginFragment);
             }
+        }
+    }
+
+    private void applyTheme() {
+        SharedPreferences prefs = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("is_dark_mode", false);
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
 }
