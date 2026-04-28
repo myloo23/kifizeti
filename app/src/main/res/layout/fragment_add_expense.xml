@@ -12,7 +12,9 @@
         android:hint="Kiadás megnevezése (pl. Vacsora)"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
 
     <EditText
         android:id="@+id/etExpenseAmount"
@@ -23,7 +25,9 @@
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etExpenseDesc" />
+        app:layout_constraintTop_toBottomOf="@id/etExpenseDesc"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
 
     <EditText
         android:id="@+id/etExpensePayer"
@@ -33,7 +37,9 @@
         android:hint="Ki fizette?"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etExpenseAmount" />
+        app:layout_constraintTop_toBottomOf="@id/etExpenseAmount"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
 
     <EditText
         android:id="@+id/etExpenseParticipants"
@@ -43,14 +49,39 @@
         android:hint="Résztvevők (vesszővel elválasztva)"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etExpensePayer" />
+        app:layout_constraintTop_toBottomOf="@id/etExpensePayer"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
 
-    <Button
-        android:id="@+id/btnSaveExpense"
+    <LinearLayout
+        android:id="@+id/llButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginTop="16dp"
-        android:text="Mentés"
-        app:layout_constraintTop_toBottomOf="@id/etExpenseParticipants" />
+        app:layout_constraintTop_toBottomOf="@id/etExpenseParticipants"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnCancelExpense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Mégse"
+            android:backgroundTint="#757575"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnSaveExpense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Mentés"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

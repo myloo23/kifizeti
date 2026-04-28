@@ -73,6 +73,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 .format(event.getCreatedAt());
         holder.tvDate.setText("Létrehozva: " + formattedDate);
 
+        holder.itemView.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putInt("event_id", event.getId());
+            bundle.putString("event_name", event.getName());
+            bundle.putString("event_desc", event.getDescription());
+            Navigation.findNavController(v).navigate(R.id.nav_event_details, bundle);
+        });
+
         holder.btnEdit.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putInt("eventId", event.getId());

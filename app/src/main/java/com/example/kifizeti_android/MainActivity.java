@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.kifizeti_android.data.UserSessionManager;
@@ -16,11 +18,15 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private UserSessionManager sessionManager;
     private NavController navController;
+    private AppBarConfiguration appBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         bottomNavigationView = findViewById(R.id.bottom_nav);
         sessionManager = new UserSessionManager(this);
@@ -31,7 +37,11 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
 
+            appBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_events, R.id.nav_add, R.id.nav_summary)
+                    .build();
 
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
 
@@ -47,15 +57,23 @@ public class MainActivity extends AppCompatActivity {
 
 
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                if (destination.getId() == R.id.loginFragment) {
+                if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
                     bottomNavigationView.setVisibility(View.GONE);
+                    if (getSupportActionBar() != null) getSupportActionBar().hide();
                 } else {
                     bottomNavigationView.setVisibility(View.VISIBLE);
+                    if (getSupportActionBar() != null) getSupportActionBar().show();
                 }
             });
         }
 
         checkLoginStatus();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(navController, appBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
     public void checkLoginStatus() {

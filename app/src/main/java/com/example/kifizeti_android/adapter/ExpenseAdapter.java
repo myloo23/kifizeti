@@ -2,6 +2,7 @@ package com.example.kifizeti_android.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,26 +11,27 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Expense;
-import com.example.kifizeti_android.ui.events.AddExpenseFragment;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> {
 
     private final List<Expense> expenses;
     private final Context context;
     private final AppDatabase db;
-    private final int eventId;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public ExpenseAdapter(Context context, List<Expense> expenses, int eventId) {
         this.context = context;
         this.expenses = expenses;
-        this.eventId = eventId;
         this.db = AppDatabase.getDatabase(context);
     }
 
@@ -65,15 +67,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         holder.tvParticipants.setText("Résztvevők: " + expense.getParticipants());
 
         holder.btnEdit.setOnClickListener(v -> {
-            ((AppCompatActivity) context)
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(
-                            R.id.fragment_container,
-                            AddExpenseFragment.newInstance(expense.getEventId(), expense.getId())
-                    )
-                    .addToBackStack(null)
-                    .commit();
+            Bundle bundle = new Bundle();
+            bundle.putInt("event_id", expense.getEventId());
+            bundle.putInt("expense_id", expense.getId());
+            Navigation.findNavController(v).navigate(R.id.nav_add_expense, bundle);
         });
 
         holder.btnDelete.setOnClickListener(v -> {
@@ -81,9 +78,18 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
                     .setTitle("Kiadás törlése")
                     .setMessage("Biztosan törölni szeretnéd ezt a kiadást?")
                     .setPositiveButton("Igen", (dialog, which) -> {
-                        db.expenseDao().delete(expense);
-                        expenses.remove(holder.getAdapterPosition());
-                        notifyDataSetChanged();
+                        executorService.execute(() -> {
+                            db.expenseDao().delete(expense);
+                            if (context instanceof AppCompatActivity) {
+                                ((AppCompatActivity) context).runOnUiThread(() -> {
+                                    int pos = holder.getAdapterPosition();
+                                    if (pos != RecyclerView.NO_POSITION) {
+                                        expenses.remove(pos);
+                                        notifyItemRemoved(pos);
+                                    }
+                                });
+                            }
+                        });
                     })
                     .setNegativeButton("Mégse", null)
                     .show();

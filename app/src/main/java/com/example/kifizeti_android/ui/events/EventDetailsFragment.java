@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +20,8 @@ import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Expense;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -33,15 +36,10 @@ public class EventDetailsFragment extends Fragment {
     private AppDatabase db;
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public static EventDetailsFragment newInstance(int eventId, String name, String desc) {
-        EventDetailsFragment fragment = new EventDetailsFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_EVENT_ID, eventId);
-        args.putString(ARG_EVENT_NAME, name);
-        args.putString(ARG_EVENT_DESC, desc);
-        fragment.setArguments(args);
-        return fragment;
+    public EventDetailsFragment() {
+        // Required empty public constructor
     }
 
     @Override
@@ -64,26 +62,41 @@ public class EventDetailsFragment extends Fragment {
         TextView tvDesc = view.findViewById(R.id.tvDetailEventDesc);
         recyclerView = view.findViewById(R.id.recyclerExpenses);
         Button btnAddExpense = view.findViewById(R.id.btnAddExpense);
+        Button btnBack = view.findViewById(R.id.btnBack);
 
         tvName.setText(eventName);
-        tvDesc.setText(eventDesc);
+        tvDesc.setText(eventDesc != null && !eventDesc.isEmpty() ? eventDesc : "Nincs leírás");
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        loadExpenses();
 
         btnAddExpense.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, AddExpenseFragment.newInstance(eventId, -1))
-                    .addToBackStack(null)
-                    .commit();
+            Bundle bundle = new Bundle();
+            bundle.putInt("event_id", eventId);
+            Navigation.findNavController(v).navigate(R.id.nav_add_expense, bundle);
+        });
+
+        btnBack.setOnClickListener(v -> {
+            Navigation.findNavController(v).popBackStack();
         });
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadExpenses();
+    }
+
     private void loadExpenses() {
-        List<Expense> expenses = db.expenseDao().getExpensesForEvent(eventId);
-        adapter = new ExpenseAdapter(getContext(), expenses, eventId);
-        recyclerView.setAdapter(adapter);
+        executorService.execute(() -> {
+            List<Expense> expenses = db.expenseDao().getExpensesForEvent(eventId);
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    adapter = new ExpenseAdapter(getContext(), expenses, eventId);
+                    recyclerView.setAdapter(adapter);
+                });
+            }
+        });
     }
 }

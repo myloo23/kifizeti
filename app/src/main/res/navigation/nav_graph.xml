@@ -30,4 +30,33 @@
         android:id="@+id/registerFragment"
         android:name="com.example.kifizeti_android.ui.auth.RegisterFragment"
         android:label="Regisztráció" />
+
+    <fragment
+        android:id="@+id/nav_event_details"
+        android:name="com.example.kifizeti_android.ui.events.EventDetailsFragment"
+        android:label="Esemény részletei">
+        <argument
+            android:name="event_id"
+            app:argType="integer" />
+        <argument
+            android:name="event_name"
+            app:argType="string" />
+        <argument
+            android:name="event_desc"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_add_expense"
+        android:name="com.example.kifizeti_android.ui.events.AddExpenseFragment"
+        android:label="Kiadás kezelése">
+        <argument
+            android:name="event_id"
+            app:argType="integer" />
+        <argument
+            android:name="expense_id"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
 </navigation>
