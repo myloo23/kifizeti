@@ -13,7 +13,7 @@ import com.example.kifizeti_android.data.entity.Event;
 import com.example.kifizeti_android.data.entity.Expense;
 import com.example.kifizeti_android.data.entity.User;
 
-@Database(entities = {Event.class, User.class, Expense.class}, version = 3, exportSchema = false)
+@Database(entities = {Event.class, User.class, Expense.class}, version = 4, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 

@@ -7,8 +7,10 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +28,7 @@ import java.util.concurrent.Executors;
 public class AddEventFragment extends Fragment {
 
     private EditText etEventName, etEventDescription;
+    private Spinner spinnerCategory;
     private Button btnSaveEvent;
     private AppDatabase db;
     private ExecutorService executorService;
@@ -34,18 +37,9 @@ public class AddEventFragment extends Fragment {
     private int eventId = -1;
     private long originalCreatedAt = 0;
 
-    public AddEventFragment() {
-    }
+    private final String[] categories = {"Egyéb", "Utazás", "Buli", "Étel", "Szórakozás"};
 
-    public static AddEventFragment newInstance(int id, String name, String description, long createdAt) {
-        AddEventFragment fragment = new AddEventFragment();
-        Bundle args = new Bundle();
-        args.putInt("eventId", id);
-        args.putString("eventName", name);
-        args.putString("eventDescription", description);
-        args.putLong("eventCreatedAt", createdAt);
-        fragment.setArguments(args);
-        return fragment;
+    public AddEventFragment() {
     }
 
     @Override
@@ -67,9 +61,15 @@ public class AddEventFragment extends Fragment {
 
         etEventName = view.findViewById(R.id.etEventName);
         etEventDescription = view.findViewById(R.id.etEventDescription);
+        spinnerCategory = view.findViewById(R.id.spinnerCategory);
         btnSaveEvent = view.findViewById(R.id.btnSaveEvent);
 
         db = AppDatabase.getDatabase(requireContext());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, categories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(adapter);
 
         if (getArguments() != null) {
             isEditMode = true;
@@ -78,31 +78,35 @@ public class AddEventFragment extends Fragment {
 
             String name = getArguments().getString("eventName", "");
             String description = getArguments().getString("eventDescription", "");
+            String category = getArguments().getString("eventCategory", "Egyéb");
 
             etEventName.setText(name);
             etEventDescription.setText(description);
-            btnSaveEvent.setText("Módosítás mentése");
+            
+            for (int i = 0; i < categories.length; i++) {
+                if (categories[i].equals(category)) {
+                    spinnerCategory.setSelection(i);
+                    break;
+                }
+            }
+            
+            btnSaveEvent.setText(R.string.edit_save_button);
         } else {
-            btnSaveEvent.setText("Létrehozás");
+            btnSaveEvent.setText(R.string.create_button);
         }
 
         etEventName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updateSaveButtonState();
             }
-
             @Override
-            public void afterTextChanged(Editable s) {
-                updateSaveButtonState();
-            }
+            public void afterTextChanged(Editable s) {}
         });
 
         btnSaveEvent.setOnClickListener(v -> saveEvent());
-
         updateSaveButtonState();
     }
 
@@ -110,7 +114,6 @@ public class AddEventFragment extends Fragment {
         if (etEventName == null) return;
         String name = etEventName.getText().toString().trim();
         boolean isValid = name.length() >= 3;
-
         btnSaveEvent.setEnabled(isValid);
         btnSaveEvent.setAlpha(isValid ? 1.0f : 0.5f);
     }
@@ -120,10 +123,10 @@ public class AddEventFragment extends Fragment {
 
         String name = etEventName.getText().toString().trim();
         String description = etEventDescription.getText().toString().trim();
+        String category = spinnerCategory.getSelectedItem().toString();
 
         if (TextUtils.isEmpty(name)) {
-            etEventName.setError("Kötelező mező");
-            etEventName.requestFocus();
+            etEventName.setError(getString(R.string.required_field));
             return;
         }
 
@@ -134,27 +137,26 @@ public class AddEventFragment extends Fragment {
 
             getActivity().runOnUiThread(() -> {
                 if (existingEvent != null && existingEvent.getId() != eventId) {
-                    etEventName.setError("Ilyen nevű esemény már létezik");
-                    etEventName.requestFocus();
+                    etEventName.setError(getString(R.string.event_exists_error));
                 } else {
                     executorService.execute(() -> {
+                        Event event = new Event(name, description, 
+                            isEditMode ? originalCreatedAt : System.currentTimeMillis(), 
+                            category);
+                        
                         if (isEditMode) {
-                            Event event = new Event(name, description, originalCreatedAt);
                             event.setId(eventId);
                             db.eventDao().update(event);
                         } else {
-                            Event event = new Event(name, description, System.currentTimeMillis());
                             db.eventDao().insert(event);
                         }
 
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
-                                Toast.makeText(requireContext(), isEditMode ? "Esemény módosítva" : "Esemény mentve", Toast.LENGTH_SHORT).show();
-                                try {
-                                    Navigation.findNavController(requireView()).popBackStack();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                Toast.makeText(requireContext(), 
+                                    isEditMode ? R.string.event_updated_toast : R.string.event_saved_toast, 
+                                    Toast.LENGTH_SHORT).show();
+                                Navigation.findNavController(requireView()).popBackStack();
                             });
                         }
                     });
@@ -166,8 +168,6 @@ public class AddEventFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (executorService != null) {
-            executorService.shutdownNow();
-        }
+        if (executorService != null) executorService.shutdownNow();
     }
 }

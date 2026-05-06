@@ -38,7 +38,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvDescription, tvDate;
+        TextView tvName, tvDescription, tvDate, tvCategory;
         Button btnDelete, btnEdit;
 
         public ViewHolder(View view) {
@@ -46,6 +46,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             tvName = view.findViewById(R.id.tvEventName);
             tvDescription = view.findViewById(R.id.tvEventDescription);
             tvDate = view.findViewById(R.id.tvEventDate);
+            tvCategory = view.findViewById(R.id.tvEventCategory);
             btnDelete = view.findViewById(R.id.btnDelete);
             btnEdit = view.findViewById(R.id.btnEdit);
         }
@@ -65,19 +66,24 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         holder.tvName.setText(event.getName());
         holder.tvDescription.setText(
                 event.getDescription() == null || event.getDescription().trim().isEmpty()
-                        ? "Nincs leírás"
+                        ? context.getString(R.string.no_description)
                         : event.getDescription()
         );
+        
+        if (holder.tvCategory != null) {
+            holder.tvCategory.setText(event.getCategory() != null ? event.getCategory() : context.getString(R.string.category_placeholder));
+        }
 
         String formattedDate = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
                 .format(event.getCreatedAt());
-        holder.tvDate.setText("Létrehozva: " + formattedDate);
+        holder.tvDate.setText(context.getString(R.string.created_at_format, formattedDate));
 
         holder.itemView.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putInt("event_id", event.getId());
             bundle.putString("event_name", event.getName());
             bundle.putString("event_desc", event.getDescription());
+            bundle.putString("event_category", event.getCategory());
             Navigation.findNavController(v).navigate(R.id.nav_event_details, bundle);
         });
 
@@ -87,32 +93,31 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             bundle.putString("eventName", event.getName());
             bundle.putString("eventDescription", event.getDescription());
             bundle.putLong("eventCreatedAt", event.getCreatedAt());
+            bundle.putString("eventCategory", event.getCategory());
 
             Navigation.findNavController(v).navigate(R.id.nav_add, bundle);
         });
 
-        holder.btnDelete.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Esemény törlése")
-                    .setMessage("Biztosan törölni szeretnéd ezt az eseményt?")
-                    .setPositiveButton("Igen", (dialog, which) -> {
-                        int adapterPosition = holder.getAdapterPosition();
-                        if (adapterPosition != RecyclerView.NO_POSITION) {
-                            Event toDelete = events.get(adapterPosition);
-                            executorService.execute(() -> {
-                                db.eventDao().delete(toDelete);
-                                if (context instanceof AppCompatActivity) {
-                                    ((AppCompatActivity) context).runOnUiThread(() -> {
-                                        events.remove(adapterPosition);
-                                        notifyItemRemoved(adapterPosition);
-                                    });
-                                }
-                            });
-                        }
-                    })
-                    .setNegativeButton("Mégse", null)
-                    .show();
-        });
+        holder.btnDelete.setOnClickListener(v -> new AlertDialog.Builder(context)
+                .setTitle(R.string.delete_event_title)
+                .setMessage(R.string.delete_event_message)
+                .setPositiveButton(R.string.yes_text, (dialog, which) -> {
+                    int adapterPosition = holder.getBindingAdapterPosition();
+                    if (adapterPosition != RecyclerView.NO_POSITION) {
+                        Event toDelete = events.get(adapterPosition);
+                        executorService.execute(() -> {
+                            db.eventDao().delete(toDelete);
+                            if (context instanceof AppCompatActivity) {
+                                ((AppCompatActivity) context).runOnUiThread(() -> {
+                                    events.remove(adapterPosition);
+                                    notifyItemRemoved(adapterPosition);
+                                });
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(R.string.no_text, null)
+                .show());
     }
 
     @Override

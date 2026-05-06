@@ -24,22 +24,25 @@ import java.util.concurrent.Executors;
 
 public class LoginFragment extends Fragment {
 
-    private EditText etUsername, etPassword;
-    private Button btnLogin;
-    private TextView tvGoToRegister;
     private UserSessionManager sessionManager;
     private AppDatabase db;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        executorService = Executors.newSingleThreadExecutor();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        etUsername = view.findViewById(R.id.et_login_username);
-        etPassword = view.findViewById(R.id.et_login_password);
-        btnLogin = view.findViewById(R.id.btn_login);
-        tvGoToRegister = view.findViewById(R.id.tv_go_to_register);
+        EditText etUsername = view.findViewById(R.id.et_login_username);
+        EditText etPassword = view.findViewById(R.id.et_login_password);
+        Button btnLogin = view.findViewById(R.id.btn_login);
+        TextView tvGoToRegister = view.findViewById(R.id.tv_go_to_register);
 
         sessionManager = new UserSessionManager(requireContext());
         db = AppDatabase.getDatabase(requireContext());
@@ -49,8 +52,12 @@ public class LoginFragment extends Fragment {
             String password = etPassword.getText().toString().trim();
 
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(getContext(), "Kérjük, töltsön ki minden mezőt!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
                 return;
+            }
+
+            if (executorService == null || executorService.isShutdown()) {
+                executorService = Executors.newSingleThreadExecutor();
             }
 
             executorService.execute(() -> {
@@ -61,23 +68,23 @@ public class LoginFragment extends Fragment {
                             sessionManager.createLoginSession(username);
                             Navigation.findNavController(view).navigate(R.id.nav_events);
                         } else {
-                            Toast.makeText(getContext(), "Hibás felhasználónév vagy jelszó!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
             });
         });
 
-        tvGoToRegister.setOnClickListener(v -> {
-             Navigation.findNavController(v).navigate(R.id.registerFragment);
-        });
+        tvGoToRegister.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.registerFragment));
 
         return view;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        executorService.shutdown();
+    public void onDestroy() {
+        super.onDestroy();
+        if (executorService != null) {
+            executorService.shutdownNow();
+        }
     }
 }
