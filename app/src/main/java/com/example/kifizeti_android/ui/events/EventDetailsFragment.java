@@ -28,10 +28,12 @@ public class EventDetailsFragment extends Fragment {
     private static final String ARG_EVENT_ID = "event_id";
     private static final String ARG_EVENT_NAME = "event_name";
     private static final String ARG_EVENT_DESC = "event_desc";
+    private static final String ARG_EVENT_CATEGORY = "event_category";
 
     private int eventId;
     private String eventName;
     private String eventDesc;
+    private String eventCategory;
 
     private AppDatabase db;
     private RecyclerView recyclerView;
@@ -39,7 +41,6 @@ public class EventDetailsFragment extends Fragment {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public EventDetailsFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -49,6 +50,7 @@ public class EventDetailsFragment extends Fragment {
             eventId = getArguments().getInt(ARG_EVENT_ID);
             eventName = getArguments().getString(ARG_EVENT_NAME);
             eventDesc = getArguments().getString(ARG_EVENT_DESC);
+            eventCategory = getArguments().getString(ARG_EVENT_CATEGORY, "Egyéb");
         }
         db = AppDatabase.getDatabase(requireContext());
     }
@@ -59,13 +61,16 @@ public class EventDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_event_details, container, false);
 
         TextView tvName = view.findViewById(R.id.tvDetailEventName);
+        TextView tvCategory = view.findViewById(R.id.tvDetailEventCategory);
         TextView tvDesc = view.findViewById(R.id.tvDetailEventDesc);
         recyclerView = view.findViewById(R.id.recyclerExpenses);
         Button btnAddExpense = view.findViewById(R.id.btnAddExpense);
         Button btnBack = view.findViewById(R.id.btnBack);
+        Button btnGoToSummary = view.findViewById(R.id.btnGoToSummary);
 
         tvName.setText(eventName);
-        tvDesc.setText(eventDesc != null && !eventDesc.isEmpty() ? eventDesc : "Nincs leírás");
+        tvCategory.setText(eventCategory);
+        tvDesc.setText(eventDesc != null && !eventDesc.isEmpty() ? eventDesc : getString(R.string.no_description));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -75,9 +80,13 @@ public class EventDetailsFragment extends Fragment {
             Navigation.findNavController(v).navigate(R.id.nav_add_expense, bundle);
         });
 
-        btnBack.setOnClickListener(v -> {
-            Navigation.findNavController(v).popBackStack();
+        btnGoToSummary.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putInt("event_id", eventId);
+            Navigation.findNavController(v).navigate(R.id.nav_summary, bundle);
         });
+
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         return view;
     }

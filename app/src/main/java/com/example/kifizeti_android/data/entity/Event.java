@@ -9,14 +9,16 @@ public class Event {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private String name;
-    private String description;
-    private long createdAt;
+    private final String name;
+    private final String description;
+    private final long createdAt;
+    private final String category;
 
-    public Event(String name, String description, long createdAt) {
+    public Event(String name, String description, long createdAt, String category) {
         this.name = name;
         this.description = description;
         this.createdAt = createdAt;
+        this.category = category;
     }
 
     public int getId() {
@@ -39,11 +41,7 @@ public class Event {
         return createdAt;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public String getCategory() {
+        return category;
     }
 }

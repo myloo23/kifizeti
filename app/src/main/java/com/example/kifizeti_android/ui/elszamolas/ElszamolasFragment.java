@@ -38,8 +38,13 @@ public class ElszamolasFragment extends Fragment {
 
         elszamolasService = new ElszamolasService();
 
+        // Biztonságos ID átvétel: mindkét gyakori kulcsot megnézzük
         if (getArguments() != null) {
-            currentEventId = getArguments().getInt("eventId", 1);
+            if (getArguments().containsKey("event_id")) {
+                currentEventId = getArguments().getInt("event_id", 1);
+            } else {
+                currentEventId = getArguments().getInt("eventId", 1);
+            }
         }
 
         frissitAdatokkal();

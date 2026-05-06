@@ -17,4 +17,29 @@
     <string name="invalid_credentials">Hibás felhasználónév vagy jelszó!</string>
     <string name="username_taken">Ez a felhasználónév már foglalt!</string>
     <string name="registration_success">Sikeres regisztráció!</string>
+
+    <!-- Event management strings -->
+    <string name="event_name_hint">Esemény neve (pl. Siófok 2024)</string>
+    <string name="description_hint">Leírás</string>
+    <string name="category_label">Kategória:</string>
+    <string name="save_button">Mentés</string>
+    <string name="edit_save_button">Módosítás mentése</string>
+    <string name="create_button">Létrehozás</string>
+    <string name="event_name_placeholder">Esemény neve</string>
+    <string name="category_placeholder">Kategória</string>
+    <string name="created_at_format">Létrehozva: %1$s</string>
+    <string name="edit_button_text">Szerk.</string>
+    <string name="delete_button_text">Törlés</string>
+    <string name="back_button">Vissza</string>
+    <string name="new_expense_button">Új kiadás</string>
+    <string name="no_description">Nincs leírás</string>
+    <string name="event_exists_error">Ilyen nevű esemény már létezik</string>
+    <string name="event_saved_toast">Esemény mentve</string>
+    <string name="event_updated_toast">Esemény módosítva</string>
+    <string name="delete_event_title">Esemény törlése</string>
+    <string name="delete_event_message">Biztosan törölni szeretnéd ezt az eseményt?</string>
+    <string name="yes_text">Igen</string>
+    <string name="no_text">Mégse</string>
+    <string name="required_field">Kötelező mező</string>
+    <string name="view_settlement">Elszámolás megtekintése</string>
 </resources>
