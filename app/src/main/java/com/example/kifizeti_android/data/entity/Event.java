@@ -9,10 +9,10 @@ public class Event {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private String name;
-    private String description;
+    private final String name;
+    private final String description;
     private final long createdAt;
-    private String category;
+    private final String category;
 
     public Event(String name, String description, long createdAt, String category) {
         this.name = name;

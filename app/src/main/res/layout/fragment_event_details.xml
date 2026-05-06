@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="8dp"
-            android:text="Elszámolás megtekintése"
+            android:text="@string/view_settlement"
             app:cornerRadius="12dp" />
 
         <LinearLayout

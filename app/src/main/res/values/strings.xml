@@ -41,4 +41,5 @@
     <string name="yes_text">Igen</string>
     <string name="no_text">Mégse</string>
     <string name="required_field">Kötelező mező</string>
+    <string name="view_settlement">Elszámolás megtekintése</string>
 </resources>
