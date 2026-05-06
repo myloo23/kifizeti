@@ -33,4 +33,19 @@
         app:layout_constraintTop_toBottomOf="@id/tv_elszamolas_cim"
         tools:listitem="@layout/item_tartozas" />
 
+    <TextView
+        android:id="@+id/tv_ures_allapot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:text="Még nincsenek kiadások rögzítve ebben az eseményben."
+        android:textAlignment="center"
+        android:textColor="#888888"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_elszamolas_cim" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,14 +17,15 @@ import com.example.kifizeti_android.adapter.TartozasAdapter;
 import com.example.kifizeti_android.data.Tartozas;
 import com.example.kifizeti_android.service.ElszamolasService;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ElszamolasFragment extends Fragment {
 
     private RecyclerView rvTartozasok;
+    private TextView tvUresAllapot;
     private ElszamolasService elszamolasService;
+    private int currentEventId = 1;
 
     @Nullable
     @Override
@@ -31,9 +33,14 @@ public class ElszamolasFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_elszamolas, container, false);
 
         rvTartozasok = view.findViewById(R.id.rv_tartozasok);
+        tvUresAllapot = view.findViewById(R.id.tv_ures_allapot);
         rvTartozasok.setLayoutManager(new LinearLayoutManager(getContext()));
 
         elszamolasService = new ElszamolasService();
+
+        if (getArguments() != null) {
+            currentEventId = getArguments().getInt("eventId", 1);
+        }
 
         frissitAdatokkal();
 
@@ -45,22 +52,20 @@ public class ElszamolasFragment extends Fragment {
                 com.example.kifizeti_android.data.db.AppDatabase.getDatabase(getContext());
         com.example.kifizeti_android.data.dao.ExpenseDao expenseDao = db.expenseDao();
 
-        if (expenseDao.getExpensesForEvent(1).isEmpty()) {
-            expenseDao.insert(new com.example.kifizeti_android.data.entity.Expense(
-                    1, "Autópálya matrica és benzin", 9000.0, "Peti", "Peti, Gábor, Anna"));
-
-            expenseDao.insert(new com.example.kifizeti_android.data.entity.Expense(
-                    1, "Pizza vacsora", 6000.0, "Anna", "Peti, Anna"));
-
-            expenseDao.insert(new com.example.kifizeti_android.data.entity.Expense(
-                    1, "Buli belépők", 4500.0, "Gábor", "Peti, Gábor, Anna"));
-        }
-        List<com.example.kifizeti_android.data.entity.Expense> kiadasok = expenseDao.getExpensesForEvent(1);
+        List<com.example.kifizeti_android.data.entity.Expense> kiadasok = expenseDao.getExpensesForEvent(currentEventId);
 
         Map<String, Integer> egyenlegek = elszamolasService.kiadasokbolEgyenlegek(kiadasok);
         List<Tartozas> lista = elszamolasService.szamoldKiATartozasokat(egyenlegek);
 
         TartozasAdapter adapter = new TartozasAdapter(lista);
         rvTartozasok.setAdapter(adapter);
+
+        if (lista.isEmpty()) {
+            tvUresAllapot.setVisibility(View.VISIBLE);
+            rvTartozasok.setVisibility(View.GONE);
+        } else {
+            tvUresAllapot.setVisibility(View.GONE);
+            rvTartozasok.setVisibility(View.VISIBLE);
+        }
     }
 }
