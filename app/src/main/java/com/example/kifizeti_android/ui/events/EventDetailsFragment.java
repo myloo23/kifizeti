@@ -101,7 +101,9 @@ public class EventDetailsFragment extends Fragment {
 
     private void loadExpenses() {
         executorService.execute(() -> {
-            List<Expense> expenses = db.expenseDao().getExpensesForEvent(eventId);
+            // Frissített metódusnév használata: getExpensesByEventId
+            List<Expense> expenses = db.expenseDao().getExpensesByEventId(eventId);
+
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     adapter = new ExpenseAdapter(getContext(), expenses, eventId);
@@ -111,3 +113,5 @@ public class EventDetailsFragment extends Fragment {
         });
     }
 }
+
+

@@ -71,7 +71,8 @@ public class ElszamolasFragment extends Fragment {
             ExpenseDao expenseDao = db.expenseDao();
 
             // 2. Lépés: Lekérjük a Nyers kiadásokat
-            List<Expense> kiadasok = expenseDao.getExpensesForEvent(currentEventId);
+
+            List<Expense> kiadasok = expenseDao.getExpensesByEventId(currentEventId);
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
