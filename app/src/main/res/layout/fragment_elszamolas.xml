@@ -5,16 +5,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FCF8FF"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.elszamolas.ElszamolasFragment">
 
+    <!-- Fő címsor: A textColorPrimary biztosítja, hogy mindig maximálisan olvasható legyen -->
     <TextView
         android:id="@+id/tv_elszamolas_cim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Tartozások elszámolása"
-        android:textColor="#1D1B20"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +34,7 @@
         app:layout_constraintTop_toBottomOf="@id/tv_elszamolas_cim"
         tools:listitem="@layout/item_tartozas" />
 
+    <!-- Üres állapot szövege: A textColorSecondary biztosítja a diszkrét, szürkés megjelenést mindkét módban -->
     <TextView
         android:id="@+id/tv_ures_allapot"
         android:layout_width="0dp"
@@ -40,7 +42,7 @@
         android:layout_marginHorizontal="32dp"
         android:text="Még nincsenek kiadások rögzítve ebben az eseményben."
         android:textAlignment="center"
-        android:textColor="#888888"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

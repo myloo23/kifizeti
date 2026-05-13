@@ -8,37 +8,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kifizeti_android.R;
-import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
+import com.example.kifizeti_android.data.repository.EventRepository;
+import com.example.kifizeti_android.data.repository.RepositoryCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
 
     private final List<Event> events;
     private final Context context;
-    private final AppDatabase db;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final EventRepository eventRepository;
 
-    public EventAdapter(Context context, List<Event> events) {
+    public EventAdapter(Context context, List<Event> events, EventRepository eventRepository) {
         this.context = context;
         this.events = events;
-        this.db = AppDatabase.getDatabase(context);
+        this.eventRepository = eventRepository;
+    }
+
+    public void updateEvents(List<Event> newEvents) {
+        this.events.clear();
+        this.events.addAll(newEvents);
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvDescription, tvDate, tvCategory;
+        TextView tvName, tvDescription, tvDate;
         Button btnDelete, btnEdit;
 
         public ViewHolder(View view) {
@@ -46,7 +50,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             tvName = view.findViewById(R.id.tvEventName);
             tvDescription = view.findViewById(R.id.tvEventDescription);
             tvDate = view.findViewById(R.id.tvEventDate);
-            tvCategory = view.findViewById(R.id.tvEventCategory);
             btnDelete = view.findViewById(R.id.btnDelete);
             btnEdit = view.findViewById(R.id.btnEdit);
         }
@@ -69,10 +72,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                         ? context.getString(R.string.no_description)
                         : event.getDescription()
         );
-        
-        if (holder.tvCategory != null) {
-            holder.tvCategory.setText(event.getCategory() != null ? event.getCategory() : context.getString(R.string.category_placeholder));
-        }
 
         String formattedDate = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
                 .format(event.getCreatedAt());
@@ -80,7 +79,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
         holder.itemView.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("event_id", event.getId());
+            bundle.putLong("event_id", event.getId());
             bundle.putString("event_name", event.getName());
             bundle.putString("event_desc", event.getDescription());
             bundle.putString("event_category", event.getCategory());
@@ -89,7 +88,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
         holder.btnEdit.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("eventId", event.getId());
+            bundle.putLong("eventId", event.getId());
             bundle.putString("eventName", event.getName());
             bundle.putString("eventDescription", event.getDescription());
             bundle.putLong("eventCreatedAt", event.getCreatedAt());
@@ -104,14 +103,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 .setPositiveButton(R.string.yes_text, (dialog, which) -> {
                     int adapterPosition = holder.getBindingAdapterPosition();
                     if (adapterPosition != RecyclerView.NO_POSITION) {
-                        Event toDelete = events.get(adapterPosition);
-                        executorService.execute(() -> {
-                            db.eventDao().delete(toDelete);
-                            if (context instanceof AppCompatActivity) {
-                                ((AppCompatActivity) context).runOnUiThread(() -> {
-                                    events.remove(adapterPosition);
-                                    notifyItemRemoved(adapterPosition);
-                                });
+                        eventRepository.deleteEvent(event, new RepositoryCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                events.remove(adapterPosition);
+                                notifyItemRemoved(adapterPosition);
+                                Toast.makeText(context, "Esemény törölve", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                Toast.makeText(context, "Hiba a törlésnél: " + message, Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
