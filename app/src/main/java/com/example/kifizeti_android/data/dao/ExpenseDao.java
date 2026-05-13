@@ -23,7 +23,7 @@ public interface ExpenseDao {
     void delete(Expense expense);
 
     @Query("SELECT * FROM expenses WHERE eventId = :eventId")
-    List<Expense> getExpensesForEvent(int eventId);
+    List<Expense> getExpensesForEvent(long eventId);
 
     @Query("SELECT * FROM expenses WHERE id = :expenseId LIMIT 1")
     Expense getExpenseById(int expenseId);

@@ -40,9 +40,10 @@
         android:id="@+id/nav_event_details"
         android:name="com.example.kifizeti_android.ui.events.EventDetailsFragment"
         android:label="Esemény részletei">
+        <!-- JAVÍTÁS: app:argType módosítva long-ra -->
         <argument
             android:name="event_id"
-            app:argType="integer" />
+            app:argType="long" />
         <argument
             android:name="event_name"
             app:argType="string" />
@@ -56,12 +57,14 @@
         android:id="@+id/nav_add_expense"
         android:name="com.example.kifizeti_android.ui.events.AddExpenseFragment"
         android:label="Kiadás kezelése">
+        <!-- JAVÍTÁS: app:argType módosítva long-ra -->
         <argument
             android:name="event_id"
-            app:argType="integer" />
+            app:argType="long" />
+        <!-- JAVÍTÁS: defaultValue -1L és app:argType long-ra módosítva -->
         <argument
             android:name="expense_id"
-            android:defaultValue="-1"
-            app:argType="integer" />
+            android:defaultValue="-1L"
+            app:argType="long" />
     </fragment>
 </navigation>

@@ -26,7 +26,7 @@ public abstract class AppDatabase extends RoomDatabase {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                                    AppDatabase.class, "kifizeti_database")
+                                    AppDatabase.class, "kifizeti_database_v2")
                             .fallbackToDestructiveMigration()
                             .allowMainThreadQueries()
                             .build();

@@ -27,11 +27,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     private final List<Expense> expenses;
     private final Context context;
     private final AppDatabase db;
+    private final long eventId;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public ExpenseAdapter(Context context, List<Expense> expenses, int eventId) {
+    public ExpenseAdapter(Context context, List<Expense> expenses, long eventId) {
         this.context = context;
         this.expenses = expenses;
+        this.eventId = eventId;
         this.db = AppDatabase.getDatabase(context);
     }
 
@@ -68,8 +70,14 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
 
         holder.btnEdit.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("event_id", expense.getEventId());
-            bundle.putInt("expense_id", expense.getId());
+            // Az esemény ID-ja hibátlanul átkerül
+            bundle.putLong("event_id", eventId);
+
+            // JAVÍTÁS: Nincs null ellenőrzés, mert az int nem lehet null.
+            // Egyből long-ként tesszük a csomagba!
+            long currentExpenseId = expense.getId();
+            bundle.putLong("expense_id", currentExpenseId);
+
             Navigation.findNavController(v).navigate(R.id.nav_add_expense, bundle);
         });
 
@@ -82,7 +90,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
                             db.expenseDao().delete(expense);
                             if (context instanceof AppCompatActivity) {
                                 ((AppCompatActivity) context).runOnUiThread(() -> {
-                                    int pos = holder.getAdapterPosition();
+                                    int pos = holder.getBindingAdapterPosition();
                                     if (pos != RecyclerView.NO_POSITION) {
                                         expenses.remove(pos);
                                         notifyItemRemoved(pos);

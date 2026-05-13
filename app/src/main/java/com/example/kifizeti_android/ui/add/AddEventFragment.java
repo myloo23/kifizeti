@@ -19,33 +19,24 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.kifizeti_android.R;
-import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.example.kifizeti_android.data.repository.EventRepository;
+import com.example.kifizeti_android.data.repository.RepositoryCallback;
 
 public class AddEventFragment extends Fragment {
 
     private EditText etEventName, etEventDescription;
     private Spinner spinnerCategory;
     private Button btnSaveEvent;
-    private AppDatabase db;
-    private ExecutorService executorService;
+    private EventRepository eventRepository;
 
     private boolean isEditMode = false;
-    private int eventId = -1;
+    private long eventId = -1; // int-ről long-ra módosítva
     private long originalCreatedAt = 0;
 
     private final String[] categories = {"Egyéb", "Utazás", "Buli", "Étel", "Szórakozás"};
 
     public AddEventFragment() {
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     @Nullable
@@ -64,7 +55,7 @@ public class AddEventFragment extends Fragment {
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
         btnSaveEvent = view.findViewById(R.id.btnSaveEvent);
 
-        db = AppDatabase.getDatabase(requireContext());
+        eventRepository = new EventRepository(requireContext());
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categories);
@@ -72,38 +63,34 @@ public class AddEventFragment extends Fragment {
         spinnerCategory.setAdapter(adapter);
 
         if (getArguments() != null) {
-            isEditMode = true;
-            eventId = getArguments().getInt("eventId", -1);
-            originalCreatedAt = getArguments().getLong("eventCreatedAt", System.currentTimeMillis());
+            // A long típusú adatot getLong-gal kérjük le!
+            eventId = getArguments().getLong("eventId", -1L);
+            if (eventId != -1) {
+                isEditMode = true;
+                originalCreatedAt = getArguments().getLong("eventCreatedAt", System.currentTimeMillis());
 
-            String name = getArguments().getString("eventName", "");
-            String description = getArguments().getString("eventDescription", "");
-            String category = getArguments().getString("eventCategory", "Egyéb");
-
-            etEventName.setText(name);
-            etEventDescription.setText(description);
-            
-            for (int i = 0; i < categories.length; i++) {
-                if (categories[i].equals(category)) {
-                    spinnerCategory.setSelection(i);
-                    break;
+                etEventName.setText(getArguments().getString("eventName", ""));
+                etEventDescription.setText(getArguments().getString("eventDescription", ""));
+                
+                String category = getArguments().getString("eventCategory", "Egyéb");
+                for (int i = 0; i < categories.length; i++) {
+                    if (categories[i].equals(category)) {
+                        spinnerCategory.setSelection(i);
+                        break;
+                    }
                 }
+                btnSaveEvent.setText(R.string.edit_save_button);
             }
-            
-            btnSaveEvent.setText(R.string.edit_save_button);
         } else {
             btnSaveEvent.setText(R.string.create_button);
         }
 
         etEventName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updateSaveButtonState();
             }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         btnSaveEvent.setOnClickListener(v -> saveEvent());
@@ -119,8 +106,6 @@ public class AddEventFragment extends Fragment {
     }
 
     private void saveEvent() {
-        if (executorService == null || executorService.isShutdown()) return;
-
         String name = etEventName.getText().toString().trim();
         String description = etEventDescription.getText().toString().trim();
         String category = spinnerCategory.getSelectedItem().toString();
@@ -130,44 +115,41 @@ public class AddEventFragment extends Fragment {
             return;
         }
 
-        executorService.execute(() -> {
-            Event existingEvent = db.eventDao().getEventByExactName(name);
-            
-            if (getActivity() == null) return;
+        // Új Event objektum létrehozása
+        Event event = new Event(
+                name,
+                description,
+                isEditMode ? originalCreatedAt : System.currentTimeMillis(),
+                category
+        );
+        
+        // Ha szerkesztünk, beállítjuk az ID-t, különben NULL marad (így a Supabase generálja)
+        if (isEditMode) {
+            event.setId(eventId);
+        }
 
-            getActivity().runOnUiThread(() -> {
-                if (existingEvent != null && existingEvent.getId() != eventId) {
-                    etEventName.setError(getString(R.string.event_exists_error));
-                } else {
-                    executorService.execute(() -> {
-                        Event event = new Event(name, description, 
-                            isEditMode ? originalCreatedAt : System.currentTimeMillis(), 
-                            category);
-                        
-                        if (isEditMode) {
-                            event.setId(eventId);
-                            db.eventDao().update(event);
-                        } else {
-                            db.eventDao().insert(event);
-                        }
+        btnSaveEvent.setEnabled(false);
+        btnSaveEvent.setText("Mentés...");
 
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                Toast.makeText(requireContext(), 
-                                    isEditMode ? R.string.event_updated_toast : R.string.event_saved_toast, 
-                                    Toast.LENGTH_SHORT).show();
-                                Navigation.findNavController(requireView()).popBackStack();
-                            });
-                        }
-                    });
+        eventRepository.saveEvent(event, new RepositoryCallback<Event>() {
+            @Override
+            public void onSuccess(Event result) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), 
+                        isEditMode ? R.string.event_updated_toast : R.string.event_saved_toast, 
+                        Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(requireView()).popBackStack();
                 }
-            });
-        });
-    }
+            }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (executorService != null) executorService.shutdownNow();
+            @Override
+            public void onError(String message) {
+                if (isAdded()) {
+                    btnSaveEvent.setEnabled(true);
+                    btnSaveEvent.setText(isEditMode ? R.string.edit_save_button : R.string.create_button);
+                    Toast.makeText(requireContext(), "Hiba (400): " + message, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }

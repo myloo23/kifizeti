@@ -9,13 +9,13 @@ public class Expense {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private int eventId;
+    private long eventId; // Típus int-ről long-ra módosítva
     private String description;
     private double amount;
     private String payer;
     private String participants;
 
-    public Expense(int eventId, String description, double amount, String payer, String participants) {
+    public Expense(long eventId, String description, double amount, String payer, String participants) {
         this.eventId = eventId;
         this.description = description;
         this.amount = amount;
@@ -31,11 +31,11 @@ public class Expense {
         this.id = id;
     }
 
-    public int getEventId() {
+    public long getEventId() {
         return eventId;
     }
 
-    public void setEventId(int eventId) {
+    public void setEventId(long eventId) {
         this.eventId = eventId;
     }
 

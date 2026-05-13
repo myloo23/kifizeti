@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,13 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kifizeti_android.R;
 import com.example.kifizeti_android.adapter.EventAdapter;
-import com.example.kifizeti_android.data.db.AppDatabase;
 import com.example.kifizeti_android.data.entity.Event;
+import com.example.kifizeti_android.data.repository.EventRepository;
+import com.example.kifizeti_android.data.repository.RepositoryCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EventsFragment extends Fragment {
 
@@ -33,8 +33,8 @@ public class EventsFragment extends Fragment {
     private TextView tvEmpty;
     private EditText etSearch;
     private Spinner spinnerSort;
-    private AppDatabase db;
-    private ExecutorService executorService;
+    private EventRepository eventRepository;
+    private EventAdapter adapter;
     
     private final TextWatcher searchWatcher = new TextWatcher() {
         @Override
@@ -48,18 +48,6 @@ public class EventsFragment extends Fragment {
     };
 
     public EventsFragment() {}
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ensureExecutorActive();
-    }
-
-    private synchronized void ensureExecutorActive() {
-        if (executorService == null || executorService.isShutdown() || executorService.isTerminated()) {
-            executorService = Executors.newSingleThreadExecutor();
-        }
-    }
 
     @Nullable
     @Override
@@ -77,10 +65,11 @@ public class EventsFragment extends Fragment {
         etSearch = view.findViewById(R.id.etSearch);
         spinnerSort = view.findViewById(R.id.spinnerSort);
 
-        db = AppDatabase.getDatabase(requireContext());
+        eventRepository = new EventRepository(requireContext());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.setAdapter(new EventAdapter(requireContext(), new ArrayList<>()));
+        adapter = new EventAdapter(requireContext(), new ArrayList<>(), eventRepository);
+        recyclerView.setAdapter(adapter);
 
         setupFilters();
     }
@@ -104,7 +93,6 @@ public class EventsFragment extends Fragment {
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
 
-        etSearch.removeTextChangedListener(searchWatcher);
         etSearch.addTextChangedListener(searchWatcher);
     }
 
@@ -115,43 +103,46 @@ public class EventsFragment extends Fragment {
     }
 
     private void loadEvents() {
-        if (etSearch == null || spinnerSort == null) return;
-        
-        ensureExecutorActive();
-        
         String searchText = etSearch.getText().toString().trim();
-        String selectedSort = spinnerSort.getSelectedItem() != null ? 
-                spinnerSort.getSelectedItem().toString() : "Dátum";
 
-        executorService.execute(() -> {
-            try {
-                List<Event> events;
-                if (!searchText.isEmpty()) {
-                    events = db.eventDao().searchEvents(searchText);
-                } else {
-                    if ("ABC".equals(selectedSort)) {
-                        events = db.eventDao().getAllEventsByName();
-                    } else {
-                        events = db.eventDao().getAllEventsByDate();
-                    }
+        if (!searchText.isEmpty()) {
+            eventRepository.searchEvents(searchText, new RepositoryCallback<List<Event>>() {
+                @Override
+                public void onSuccess(List<Event> result) {
+                    updateUI(result);
                 }
 
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        if (events == null || events.isEmpty()) {
-                            tvEmpty.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                        } else {
-                            tvEmpty.setVisibility(View.GONE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                            recyclerView.setAdapter(new EventAdapter(requireContext(), events));
-                        }
-                    });
+                @Override
+                public void onError(String message) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            });
+        } else {
+            eventRepository.getAllEvents(new RepositoryCallback<List<Event>>() {
+                @Override
+                public void onSuccess(List<Event> result) {
+                    updateUI(result);
+                }
+
+                @Override
+                public void onError(String message) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void updateUI(List<Event> events) {
+        if (!isAdded()) return;
+        
+        if (events == null || events.isEmpty()) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            tvEmpty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            adapter.updateEvents(events);
+        }
     }
 
     @Override
@@ -159,14 +150,6 @@ public class EventsFragment extends Fragment {
         super.onDestroyView();
         if (etSearch != null) {
             etSearch.removeTextChangedListener(searchWatcher);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (executorService != null) {
-            executorService.shutdownNow();
         }
     }
 }

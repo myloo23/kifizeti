@@ -30,7 +30,7 @@ public class EventDetailsFragment extends Fragment {
     private static final String ARG_EVENT_DESC = "event_desc";
     private static final String ARG_EVENT_CATEGORY = "event_category";
 
-    private int eventId;
+    private long eventId;
     private String eventName;
     private String eventDesc;
     private String eventCategory;
@@ -47,7 +47,7 @@ public class EventDetailsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            eventId = getArguments().getInt(ARG_EVENT_ID);
+            eventId = getArguments().getLong(ARG_EVENT_ID);
             eventName = getArguments().getString(ARG_EVENT_NAME);
             eventDesc = getArguments().getString(ARG_EVENT_DESC);
             eventCategory = getArguments().getString(ARG_EVENT_CATEGORY, "Egyéb");
@@ -69,20 +69,22 @@ public class EventDetailsFragment extends Fragment {
         Button btnGoToSummary = view.findViewById(R.id.btnGoToSummary);
 
         tvName.setText(eventName);
-        tvCategory.setText(eventCategory);
+        if (tvCategory != null) {
+            tvCategory.setText(eventCategory);
+        }
         tvDesc.setText(eventDesc != null && !eventDesc.isEmpty() ? eventDesc : getString(R.string.no_description));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         btnAddExpense.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("event_id", eventId);
+            bundle.putLong("event_id", eventId);
             Navigation.findNavController(v).navigate(R.id.nav_add_expense, bundle);
         });
 
         btnGoToSummary.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("event_id", eventId);
+            bundle.putLong("event_id", eventId);
             Navigation.findNavController(v).navigate(R.id.nav_summary, bundle);
         });
 

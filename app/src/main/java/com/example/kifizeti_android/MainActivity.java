@@ -3,8 +3,10 @@ package com.example.kifizeti_android;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
@@ -41,32 +43,52 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
 
+            // JAVÍTÁS 1: Kivettük a 'R.id.nav_summary'-t a főképernyők listájából!
+            // Eredmény: Az Elszámolás képernyőn meg fog jelenni a felső Vissza (<-) nyíl.
             appBarConfiguration = new AppBarConfiguration.Builder(
-                    R.id.nav_events, R.id.nav_add, R.id.nav_summary, R.id.nav_settings)
+                    R.id.nav_events, R.id.nav_add, R.id.nav_settings)
                     .build();
 
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-            NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
-
+            // JAVÍTÁS 2: Erős, egyedi menüvezérlés a beragadás ellen
             bottomNavigationView.setOnItemSelectedListener(item -> {
-                if (item.getItemId() == R.id.nav_logout) {
+                int itemId = item.getItemId();
+
+                // Kijelentkezés lekezelése
+                if (itemId == R.id.nav_logout) {
                     sessionManager.logoutUser();
                     checkLoginStatus();
+                    return false;
+                }
+
+                // Ha az Eseményekre kattintunk, agresszíven töröljük a köztes képernyőket
+                if (itemId == R.id.nav_events) {
+                    navController.popBackStack(R.id.nav_events, false);
                     return true;
                 }
 
+                // A többi gomb (Új, Beállítások, Elszámolás) normál navigációja
                 return NavigationUI.onNavDestinationSelected(item, navController);
             });
 
-
+            // Képernyőváltás figyelése: Elrejtjük a menüt login/register közben,
+            // és frissítjük az alsó ikonok színét, ha visszalépünk.
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
+                int destId = destination.getId();
+
+                if (destId == R.id.loginFragment || destId == R.id.registerFragment) {
                     bottomNavigationView.setVisibility(View.GONE);
                     if (getSupportActionBar() != null) getSupportActionBar().hide();
                 } else {
                     bottomNavigationView.setVisibility(View.VISIBLE);
                     if (getSupportActionBar() != null) getSupportActionBar().show();
+                }
+
+                // Szinkronizáljuk a kék ikont azzal a képernyővel, ahol épp vagyunk
+                if (destId == R.id.nav_events || destId == R.id.nav_add ||
+                        destId == R.id.nav_summary || destId == R.id.nav_settings) {
+                    bottomNavigationView.getMenu().findItem(destId).setChecked(true);
                 }
             });
         }
